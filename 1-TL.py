@@ -30,4 +30,4 @@ for index, fichier in enumerate(files):
 
     newLine[index, :] = binary[LINETOPICK+1]
 
-io.imsave(join(PATH,'test.png'), newLine)
+io.imsave(join(PATH,'TL.png'), newLine)
