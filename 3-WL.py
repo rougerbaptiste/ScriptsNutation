@@ -32,17 +32,20 @@ errfunc = lambda p, x, y : fitfunc(p,x) - y
 mypath = sys.argv[1]
 myfile = sys.argv[2]
 
-data = []
-fileRead = open(join(mypath, myfile), "r")
-for line in fileRead:
-    data.append(map(int, line.split(",")))
+# data = []
+# fileRead = open(join(mypath, myfile), "r")
+# for line in fileRead:
+#     data.append(map(int, line.split(",")))
 
-trajec = data[0][:]
+
+
+# trajec = data[0][:]
 #print(trajec)
-absc = data[1][:]
+# absc = data[1][:]
 #print(absc)
+[absc, trajec] = np.loadtxt(join(mypath, myfile), delimiter=',')
 
-data_norm = (trajec - np.mean(trajec))/np.std(trajec) # waipy.normalize(trajec)
+data_norm = waipy.normalize(trajec)
 #print(data_norm)
 
 
@@ -51,35 +54,34 @@ spacePic = absc[2] - absc[1]
 wavelet = 'morl'
 
 #plt.plot(absc, data_norm)
- 
-print("hi")
+
+#print("hi")
 wa = WaveletAnalysis(data_norm, dt=spacePic)
-print("ho")
 power = wa.wavelet_power
 scales = wa.scales
 t = wa.time
-#rx = wa.reconstruction()
+rx = wa.reconstruction()
 pp = wa.fourier_periods
 
-print("ha")
+#print("ha")
 
-#fig, ax = plt.subplots()
-#T, S = np.meshgrid(t, scales)
-#ax.contourf(T, S, power, 100)
-#ax.set_yscale('log')
-#fig.savefig("zzzz.pdf")
+fig, ax = plt.subplots()
+T, S = np.meshgrid(t, scales)
+ax.contourf(T, S, power, 100)
+ax.set_yscale('log')
+fig.show()
 
-#plt.figure()
-#plt.plot(scales, power[:,1000])
-#plt.xlabel('Echelle')
-#plt.ylabel('Energie')
-
-#plt.figure()
-#plt.plot(pp, power[:,1000], "-+")
-#plt.xlabel('Periodes equivalentes')
-#plt.ylabel('Energie')
+# plt.figure()
+# plt.plot(scales, power[:,1000])
+# plt.xlabel('Echelle')
+# plt.ylabel('Energie')
 #
-##plt.show()
+# plt.figure()
+# plt.plot(pp, power[:,1000], "-+")
+# plt.xlabel('Periodes equivalentes')
+# plt.ylabel('Energie')
+
+plt.show()
 #plt.close()
 #plt.close()
 #plt.close()
@@ -87,26 +89,35 @@ print("ha")
 #plt.close()
 
 indices1 = np.where(pp<300)[0] # and pp > 50)
-#indices2 = np.where(pp > 50)
-#indices = [i for i in indices1]
+indices2 = np.where(pp > 50)[0]
+
+indices1 = indices1.tolist()
+indices2 = indices2.tolist()
+
+#print(indices1)
+#print(indices2)
+
+indices = set(indices1).__and__(set(indices2))
+indices = list(indices)
+#print(indices)
 freq = []
 ampl = []
 p0values=[10,100,25]
 
-print("hy")
+#print("hy")
 for i in range(0, len(power[1,:])):
 #    freq.append(pp[np.argmax(power[indices1,i])])
-    ydata = power[indices1, i]
-    xdata = pp[indices1]
+    ydata = power[indices, i]
+    xdata = pp[indices]
 #    print(indices1)
-    
+
     p_solus, success =  leastsq(errfunc,p0values[:],args=(xdata, ydata))
 
     yfit = fitfunc(p_solus,xdata)
-    
+
     freq.append(p_solus[1])
     ampl.append(p_solus[0])
-print("he")
+#print("he")
 
 #    print(popt)
 #    if i == 1000:
@@ -115,12 +126,8 @@ print("he")
 #        plt.plot(xdata2,fitfunc(p_solus, xdata2),'r',label='fit')
 
 
-plt.plot(freq)
-plt.savefig(join(mypath,"freq.pdf"))
+plt.plot(absc, freq, '+')
+plt.savefig(join(mypath,"period.pdf"))
 plt.figure()
-plt.plot(ampl)
-plt.savefig(join(mypath,"ampl.pdf"))
-
-
-
-
+plt.plot(absc, ampl, '+')
+plt.savefig(join(mypath,"Zamplitude.pdf"))

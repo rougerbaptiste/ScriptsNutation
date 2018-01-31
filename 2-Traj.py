@@ -12,7 +12,7 @@ import itertools
 from os import listdir
 from os.path import isfile, join
 #import waipy
-#import numpy as np
+from numpy import savetxt, stack
 #from wavelets import WaveletAnalysis
 #from scipy.optimize import leastsq
 import sys
@@ -58,7 +58,7 @@ for ligne in range(len(files)):
         max1 = maxSuite[pos]
         max2 = maxSuite[pos+1] +1
         pixSuite[max1:max2] = itertools.repeat(len(pixSuite[max1:max2]), len(pixSuite[max1:max2]))
-    
+
     sumPix = 0
     for indMoy in range(0, len(pixSuite)):
         sumPix += positions[indMoy] * pixSuite[indMoy]
@@ -68,15 +68,16 @@ for ligne in range(len(files)):
 absc = [0]
 for ind in range(0, len(trajec)-1):
     absc.append(absc[ind]+spacePic)
-    
-fileWrite = open(join(mypath, "trajec.csv"), "a")
-#for i in range(0,len(absc)):
-#    lineToWrite = str(absc[i]) + ";" + str(trajec[i]) + "\n"
-#    fileWrite.write(lineToWrite)
-fileWrite.write(",".join(str(e) for e in absc) + "\n")
-#fileWrite.write("\n")
-fileWrite.write(",".join(str(e) for e in trajec))
-fileWrite.close()
+
+savetxt(join(mypath, "trajec.csv"), stack((absc, trajec)), delimiter=',' )
+# fileWrite = open(join(mypath, "trajec.csv"), "a")
+# #for i in range(0,len(absc)):
+# #    lineToWrite = str(absc[i]) + ";" + str(trajec[i]) + "\n"
+# #    fileWrite.write(lineToWrite)
+# fileWrite.write(",".join(str(e) for e in absc) + "\n")
+# #fileWrite.write("\n")
+# fileWrite.write(",".join(str(e) for e in trajec))
+# fileWrite.close()
 
 plt.plot(absc, trajec, "+-")
 

@@ -36,7 +36,7 @@ spacePic = 5
 
 files = [f for f in listdir(mypath) if isfile(join(mypath,f)) and '.jpg' in f]
 
-TL = io.imread("test2.png")
+TL = io.imread("TL2.png")
 
 trajec = []
 for ligne in range(len(files)):

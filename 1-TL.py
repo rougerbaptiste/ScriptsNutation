@@ -15,12 +15,14 @@ from skimage.color import rgb2gray
 import sys
 
 PATH = sys.argv[1]
-LINETOPICK = int(sys.argv[2])
+LINESTOPICK = sys.argv[2]
+
+linestopick = [int(e) for e in LINESTOPICK.split(',')]
 
 files = [f for f in listdir(PATH) if isfile(join(PATH,f)) and '.jpg' in f]
 files.sort()
 
-newLine = np.zeros(shape=(len(files), 4496))
+newLine = np.zeros(shape=(len(files), 4496, len(linestopick)))
 for index, fichier in enumerate(files):
     print(str(index+1) + "/" + str(len(files)))
     imFull = io.imread(join(PATH,fichier),plugin='matplotlib')
@@ -28,6 +30,12 @@ for index, fichier in enumerate(files):
     thresh = threshold_otsu(imFull)
     binary = imFull > thresh
 
-    newLine[index, :] = binary[LINETOPICK+1]
+    for imgNb in range(0,len(linestopick)):
+        newLine[index,:,imgNb] = binary[linestopick[imgNb]+1]
 
-io.imsave(join(PATH,'TL.png'), newLine)
+    # newLine[index, :] = binary[LINETOPICK+1]
+
+for imgNb in range(0,len(linestopick)):
+    filename = 'TL' + str(linestopick[imgNb]) + '.png'
+    print(newLine[:,:,imgNb].shape)
+    io.imsave(join(PATH,filename), newLine[:,:,imgNb])
