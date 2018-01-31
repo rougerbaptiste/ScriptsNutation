@@ -11,15 +11,8 @@ from skimage import io
 import itertools
 from os import listdir
 from os.path import isfile, join
-#import waipy
 from numpy import savetxt, stack
-#from wavelets import WaveletAnalysis
-#from scipy.optimize import leastsq
 import sys
-
-#fitfunc = lambda p, x :   ( p[0]  * np.exp(-((x-p[1])/p[2])**2) )
-#errfunc = lambda p, x, y : fitfunc(p,x) - y
-
 
 
 
@@ -70,15 +63,6 @@ for ind in range(0, len(trajec)-1):
     absc.append(absc[ind]+spacePic)
 
 savetxt(join(mypath, "trajec.csv"), stack((absc, trajec)), delimiter=',' )
-# fileWrite = open(join(mypath, "trajec.csv"), "a")
-# #for i in range(0,len(absc)):
-# #    lineToWrite = str(absc[i]) + ";" + str(trajec[i]) + "\n"
-# #    fileWrite.write(lineToWrite)
-# fileWrite.write(",".join(str(e) for e in absc) + "\n")
-# #fileWrite.write("\n")
-# fileWrite.write(",".join(str(e) for e in trajec))
-# fileWrite.close()
-
 plt.plot(absc, trajec, "+-")
 
 plt.savefig(join(mypath,"trajec.pdf"))

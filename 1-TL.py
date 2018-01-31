@@ -33,8 +33,6 @@ for index, fichier in enumerate(files):
     for imgNb in range(0,len(linestopick)):
         newLine[index,:,imgNb] = binary[linestopick[imgNb]+1]
 
-    # newLine[index, :] = binary[LINETOPICK+1]
-
 for imgNb in range(0,len(linestopick)):
     filename = 'TL' + str(linestopick[imgNb]) + '.png'
     print(newLine[:,:,imgNb].shape)
