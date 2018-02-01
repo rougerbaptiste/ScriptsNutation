@@ -21,10 +21,17 @@ errfunc = lambda p, x, y : fitfunc(p,x) - y
 
 mypath = sys.argv[1]
 myfile = sys.argv[2]
+myscale = float(sys.argv[3])
 
 [absc, trajec] = np.loadtxt(join(mypath, myfile), delimiter=',')
 
-data_norm = waipy.normalize(trajec)
+trajecScaled = [a * myscale for a in trajec]
+
+plt.figure()
+plt.plot(absc, trajecScaled, '+-')
+plt.savefig(join(mypath, "trajScaled.pdf"))
+
+data_norm = waipy.normalize(trajecScaled)
 
 
 spacePic = absc[2] - absc[1]
@@ -39,6 +46,7 @@ rx = wa.reconstruction()
 pp = wa.fourier_periods
 
 
+plt.figure()
 fig, ax = plt.subplots()
 T, S = np.meshgrid(t, scales)
 ax.contourf(T, S, power, 100)
@@ -69,9 +77,11 @@ for i in range(0, len(power[1,:])):
     freq.append(p_solus[1])
     ampl.append(p_solus[0])
 
+amplScaled = [e * myscale for e in ampl]
 
+plt.figure()
 plt.plot(absc, freq, '+')
 plt.savefig(join(mypath,"period.pdf"))
 plt.figure()
-plt.plot(absc, ampl, '+')
+plt.plot(absc, amplScaled, '+')
 plt.savefig(join(mypath,"Zamplitude.pdf"))
