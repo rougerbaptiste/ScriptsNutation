@@ -15,14 +15,15 @@ from skimage.color import rgb2gray
 import sys
 
 PATH = sys.argv[1]
-LINESTOPICK = sys.argv[2]
+WIDTH = int(sys.argv[2])
+LINESTOPICK = sys.argv[3]
 
 linestopick = [int(e) for e in LINESTOPICK.split(',')]
 
 files = [f for f in listdir(PATH) if isfile(join(PATH,f)) and '.jpg' in f]
 files.sort()
 
-newLine = np.zeros(shape=(len(files), 4496, len(linestopick)))
+newLine = np.zeros(shape=(len(files), WIDTH, len(linestopick)))
 for index, fichier in enumerate(files):
     print(str(index+1) + "/" + str(len(files)))
     imFull = io.imread(join(PATH,fichier),plugin='matplotlib')
