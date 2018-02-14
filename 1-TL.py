@@ -10,7 +10,7 @@ from os import listdir
 from os.path import isfile, join
 import numpy as np
 from skimage import io, img_as_uint, img_as_float
-from skimage.filters import threshold_otsu
+from skimage.filters import threshold_otsu, threshold_mean
 from skimage.color import rgb2gray
 import matplotlib.pyplot as plt
 import sys
@@ -21,6 +21,8 @@ import Image, ImageTk
 PATH = sys.argv[1]
 ReadEvery = int(sys.argv[2])
 Scale = int(sys.argv[3])
+XStart = int(sys.argv[4])
+XStop = int(sys.argv[5])
 # WIDTH = int(sys.argv[2])
 # LINESTOPICK = sys.argv[2]
 # SHIFTSTART = int(sys.argv[2])
@@ -101,15 +103,15 @@ for ligne in linestopick:
 
 print(allLines)
 
-
-newLine = np.zeros(shape=(len(files), WIDTH, 3), dtype=np.uint8)
+finalWidth = XStop - XStart
+newLine = np.zeros(shape=(len(files), finalWidth, 3), dtype=np.uint8)
 for index, fichier in enumerate(files):
 
     print(str(index+1) + "/" + str(len(files)))
     imFull = io.imread(join(PATH,fichier),plugin='matplotlib')
-    print(newLine[index,:,:].shape)
-    print(imFull[allLines[index]+1].shape)
-    newLine[index,:,:] = imFull[allLines[index]+1]
+    # print(newLine[index,:,:].shape)
+    # print(imFull[allLines[index]+1].shape)
+    newLine[index,:,:] = imFull[allLines[index]+1, XStart:XStop]
     # for imgNb in range(0, len(linestopick)):
     #     newLine[index,:,:, imgNb] = imFull[linestopick[imgNb]+1 + int(index*deltaT)]
 
@@ -121,7 +123,19 @@ io.imsave(join(PATH, filename), img_as_uint(newLine[:,:,:]))
 tlGray = rgb2gray(newLine[:,:,:])
 filename = 'TLGray' + '.png'
 io.imsave(join(PATH, filename), img_as_uint(tlGray))
-thresh = threshold_otsu(tlGray)
-binary = tlGray > thresh
+# thresh = threshold_otsu(tlGray)
+# binary = tlGray > thresh
+# filename = 'TL' + '.png'
+# io.imsave(join(PATH, filename), img_as_uint(binary))
+
+print(tlGray.shape)
+
+binary = []
+for index in range(0, tlGray.shape[0], 2):
+    imTemp = tlGray[index:index+1,:]
+    thresh = threshold_otsu(imTemp)
+    imBin = imTemp > thresh
+    for ligne in imBin:
+        binary.append(ligne)
 filename = 'TL' + '.png'
 io.imsave(join(PATH, filename), img_as_uint(binary))
