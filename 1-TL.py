@@ -17,21 +17,14 @@ import sys
 import pickle
 from Tkinter import *
 import Image, ImageTk
+from numpy import savetxt, stack
 
 PATH = sys.argv[1]
 ReadEvery = int(sys.argv[2])
 Scale = int(sys.argv[3])
 XStart = int(sys.argv[4])
 XStop = int(sys.argv[5])
-# WIDTH = int(sys.argv[2])
-# LINESTOPICK = sys.argv[2]
-# SHIFTSTART = int(sys.argv[2])
-# SHIFTSTOP = int(sys.argv[3])
-
-###
-# Files finding and line choice
-
-# linestopick = [int(e) for e in LINESTOPICK.split(',')]
+spacePic = int(sys.argv[6])
 
 files = [f for f in listdir(PATH) if isfile(join(PATH,f)) and '.jpg' in f]
 files.sort()
@@ -43,7 +36,6 @@ HEIGHT = imSize.shape[0]
 linestopick = []
 
 for ind in range(0, len(files), ReadEvery):
-    # imLine = io.imread(join(PATH, files[ind]), plugin='matplotlib')
 
     if __name__ == "__main__":
         root = Tk()
@@ -79,10 +71,6 @@ for ind in range(0, len(files), ReadEvery):
         canvas.config(scrollregion=canvas.bbox(ALL))
 
 
-        #adding the image
-        #File = askopenfilename(parent=root, initialdir="C:/",title='Choose an image.')
-        # img = ImageTk.PhotoImage(Image.open(join(PATH, files[ind])))
-
 
 
         #function to be called when mouse is clicked
@@ -96,46 +84,45 @@ for ind in range(0, len(files), ReadEvery):
         root.mainloop()
 print(linestopick)
 
-allLines = []
+allLines = [] # reconstitution of the indices for all pictures and not clicked ones
 for ligne in linestopick:
     for value in range(0, ReadEvery):
         allLines.append(ligne*Scale)
 
 print(allLines)
 
+# crop of pictures + TL creation + saving TL to color and gray
 finalWidth = XStop - XStart
 newLine = np.zeros(shape=(len(files), finalWidth, 3), dtype=np.uint8)
 for index, fichier in enumerate(files):
 
     print(str(index+1) + "/" + str(len(files)))
     imFull = io.imread(join(PATH,fichier),plugin='matplotlib')
-    # print(newLine[index,:,:].shape)
-    # print(imFull[allLines[index]+1].shape)
     newLine[index,:,:] = imFull[allLines[index]+1, XStart:XStop]
-    # for imgNb in range(0, len(linestopick)):
-    #     newLine[index,:,:, imgNb] = imFull[linestopick[imgNb]+1 + int(index*deltaT)]
 
 
-# for imgNb in range(0,len(linestopick)):
 pickle.dump([newLine[:,:,:]], open(join(PATH, "pickle"), "w"))
 filename = 'TLCol' + '.png'
 io.imsave(join(PATH, filename), img_as_uint(newLine[:,:,:]))
 tlGray = rgb2gray(newLine[:,:,:])
 filename = 'TLGray' + '.png'
 io.imsave(join(PATH, filename), img_as_uint(tlGray))
-# thresh = threshold_otsu(tlGray)
-# binary = tlGray > thresh
-# filename = 'TL' + '.png'
-# io.imsave(join(PATH, filename), img_as_uint(binary))
 
-print(tlGray.shape)
 
-binary = []
-for index in range(0, tlGray.shape[0], 2):
-    imTemp = tlGray[index:index+1,:]
-    thresh = threshold_otsu(imTemp)
-    imBin = imTemp > thresh
-    for ligne in imBin:
-        binary.append(ligne)
-filename = 'TL' + '.png'
-io.imsave(join(PATH, filename), img_as_uint(binary))
+# computes the position of the leaf
+g = io.imread(join(PATH, "TLGray.png"),plugin='matplotlib')
+pos = []
+ind = []
+for i in np.arange(len(g[:,0])):
+	signal = g[i,:] -np.median(g[i,:])
+	indices = np.where(signal> 0.5*max(signal))
+	resu = np.median(indices)
+	pos.append(resu)
+	ind.append(i)
+
+# saves the position to csv
+indi = [e*spacePic for e in ind]
+savetxt(join(PATH, "trajec.csv"), stack((indi, pos)), delimiter=',' )
+plt.plot(indi, pos, "+-")
+
+plt.savefig(join(PATH,"trajec.pdf"))
