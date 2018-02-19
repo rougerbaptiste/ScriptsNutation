@@ -18,6 +18,7 @@ import pickle
 from Tkinter import *
 import Image, ImageTk
 from numpy import savetxt, stack
+import os
 
 PATH = sys.argv[1]
 ReadEvery = int(sys.argv[2])
@@ -94,11 +95,25 @@ print(allLines)
 # crop of pictures + TL creation + saving TL to color and gray
 finalWidth = XStop - XStart
 newLine = np.zeros(shape=(len(files), finalWidth, 3), dtype=np.uint8)
+
+saveNb = 0
 for index, fichier in enumerate(files):
 
     print(str(index+1) + "/" + str(len(files)))
     imFull = io.imread(join(PATH,fichier),plugin='matplotlib')
-    newLine[index,:,:] = imFull[allLines[index]+1, XStart:XStop]
+    newLine[index,:,:] = imFull[allLines[index], XStart:XStop]
+
+    # save the pic with the red line
+    if index % ReadEvery == 0:
+        if not os.path.exists(join(PATH,"saves")):
+            os.makedirs(join(PATH,"saves"))
+        imRedL = np.zeros(shape=(imFull.shape), dtype=np.uint8)
+        imRedL[0:allLines[index]-1, :, :] = imFull[0:allLines[index]-1]
+        imRedL[allLines[index],:,:] = [255,0,0]
+        imRedL[allLines[index]+1:, :, :] = imFull[allLines[index]+1:]
+        fname = "im" + str(saveNb) + "-" + str(index) + ".png"
+        io.imsave(join(PATH, "saves", fname), img_as_uint(imRedL))
+        saveNb+=1
 
 
 pickle.dump([newLine[:,:,:]], open(join(PATH, "pickle"), "w"))
