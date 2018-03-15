@@ -81,7 +81,11 @@ amplScaled = [e * myscale for e in ampl]
 
 plt.figure()
 plt.plot(absc, freq, '+')
+x1,x2,y1,y2 = plt.axis()
+plt.axis([x1, x2, 0, 300])
 plt.savefig(join(mypath,"period.pdf"))
 plt.figure()
 plt.plot(absc, amplScaled, '+')
+x1,x2,y1,y2 = plt.axis()
+plt.axis([x1, x2, -1, 3])
 plt.savefig(join(mypath,"Zamplitude.pdf"))
