@@ -19,6 +19,7 @@ from Tkinter import *
 import Image, ImageTk
 from numpy import savetxt, stack
 import os
+from scipy.interpolate import interp1d
 
 PATH = sys.argv[1]
 ReadEvery = int(sys.argv[2])
@@ -36,7 +37,8 @@ HEIGHT = imSize.shape[0]
 
 linestopick = []
 
-for ind in range(0, len(files), ReadEvery):
+indexes = list(range(0, len(files), ReadEvery)) + [len(files)]
+for ind in indexes:
 
     if __name__ == "__main__":
         root = Tk()
@@ -85,12 +87,16 @@ for ind in range(0, len(files), ReadEvery):
         root.mainloop()
 print(linestopick)
 
-allLines = [] # reconstitution of the indices for all pictures and not clicked ones
-for ligne in linestopick:
-    for value in range(0, ReadEvery):
-        allLines.append(ligne*Scale)
+f = interp1d(indexes, linestopick)
+indicesFull = np.arrange(0, len(files))
 
-print(allLines)
+allLines = [int(e) for e in f(indicesFull)] # reconstitution of the indices for all pictures and not clicked ones
+# for ligne in linestopick:
+#
+#     for value in range(0, ReadEvery):
+#         allLines.append(ligne*Scale)
+#
+# print(allLines)
 
 # crop of pictures + TL creation + saving TL to color and gray
 finalWidth = XStop - XStart
