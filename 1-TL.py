@@ -108,7 +108,7 @@ for index, fichier in enumerate(files):
         if not os.path.exists(join(PATH,"saves")):
             os.makedirs(join(PATH,"saves"))
         imRedL = np.zeros(shape=(imFull.shape), dtype=np.uint8)
-        imRedL[0:allLines[index]-1, :, :] = imFull[0:allLines[index]-1]
+        imRedL[0:allLines[index], :, :] = imFull[0:allLines[index]]
         imRedL[allLines[index],:,:] = [255,0,0]
         imRedL[allLines[index]+1:, :, :] = imFull[allLines[index]+1:]
         fname = "im" + str(saveNb) + "-" + str(index) + ".png"
