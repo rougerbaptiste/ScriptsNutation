@@ -37,7 +37,8 @@ HEIGHT = imSize.shape[0]
 
 linestopick = []
 
-indexes = list(range(0, len(files), ReadEvery)) + [len(files)]
+indexes = list(range(0, len(files), ReadEvery)) + [len(files)-1]
+# print(indexes)
 for ind in indexes:
 
     if __name__ == "__main__":
@@ -88,7 +89,7 @@ for ind in indexes:
 print(linestopick)
 
 f = interp1d(indexes, linestopick)
-indicesFull = np.arrange(0, len(files))
+indicesFull = np.arange(0, len(files))
 
 allLines = [int(e) for e in f(indicesFull)] # reconstitution of the indices for all pictures and not clicked ones
 # for ligne in linestopick:
