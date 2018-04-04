@@ -91,7 +91,8 @@ print(linestopick)
 f = interp1d(indexes, linestopick)
 indicesFull = np.arange(0, len(files))
 
-allLines = [int(e) for e in f(indicesFull)] # reconstitution of the indices for all pictures and not clicked ones
+allLines = [int(e)*Scale for e in f(indicesFull)] # reconstitution of the indices for all pictures and not clicked ones
+print(allLines)
 # for ligne in linestopick:
 #
 #     for value in range(0, ReadEvery):

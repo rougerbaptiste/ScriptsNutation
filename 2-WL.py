@@ -77,7 +77,7 @@ for i in range(0, len(power[1,:])):
     freq.append(p_solus[1])
     ampl.append(p_solus[0])
 
-amplScaled = [e * myscale for e in ampl]
+amplScaled = ampl #[e * myscale for e in ampl]
 
 plt.figure()
 plt.plot(absc, freq, '+')
@@ -87,5 +87,5 @@ plt.savefig(join(mypath,"period.pdf"))
 plt.figure()
 plt.plot(absc, amplScaled, '+')
 x1,x2,y1,y2 = plt.axis()
-plt.axis([x1, x2, -1, 3])
+plt.axis([x1, x2, -1, 100])
 plt.savefig(join(mypath,"Zamplitude.pdf"))
