@@ -145,7 +145,10 @@ for i in np.arange(len(g[:,0])):
 
 # saves the position to csv
 indi = [e*spacePic for e in ind]
+
 savetxt(join(PATH, "trajec.csv"), stack((indi, pos)), delimiter=',' )
 plt.plot(indi, pos, "+-")
+plt.xlabel("Time (in min)")
+plt.ylabel("Position of the stem (in pixel)")
 
 plt.savefig(join(PATH,"trajec.pdf"))

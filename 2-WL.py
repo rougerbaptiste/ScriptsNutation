@@ -25,11 +25,28 @@ myscale = float(sys.argv[3])
 
 [absc, trajec] = np.loadtxt(join(mypath, myfile), delimiter=',')
 
-trajecScaled = [a * myscale for a in trajec]
+trajecScaled = np.array([a * myscale for a in trajec])
+
+fit = np.polyfit(absc, trajecScaled, 1)
+derive = np.poly1d(fit)
+
+corrections = np.array([derive(e) for e in absc])
 
 plt.figure()
 plt.plot(absc, trajecScaled, '+-')
-plt.savefig(join(mypath, "trajScaled.pdf"))
+plt.plot(absc, corrections)
+plt.xlabel("Time (in min)")
+plt.ylabel("Position of the stem (in cm)")
+plt.savefig(join(mypath, "trajScaledRaw.pdf"))
+
+trajScaledRaw = trajecScaled
+trajecScaled = trajecScaled - corrections
+
+plt.figure()
+plt.plot(absc, trajecScaled, '+-')
+plt.xlabel("Time (in min)")
+plt.ylabel("Position of the stem (in cm)")
+plt.savefig(join(mypath, "trajScaledCorr.pdf"))
 
 data_norm = waipy.normalize(trajecScaled)
 
