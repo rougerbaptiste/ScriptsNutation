@@ -23,6 +23,8 @@ mypath = sys.argv[1]
 myfile = sys.argv[2]
 myscale = float(sys.argv[3])
 
+fudgeFactor = 117.96610952
+
 [absc, trajec] = np.loadtxt(join(mypath, myfile), delimiter=',')
 
 trajecScaled = np.array([a * myscale for a in trajec])
@@ -32,10 +34,12 @@ derive = np.poly1d(fit)
 
 corrections = np.array([derive(e) for e in absc])
 
+absc = absc/60.0
+
 plt.figure()
 plt.plot(absc, trajecScaled, '+-')
 plt.plot(absc, corrections)
-plt.xlabel("Time (in min)")
+plt.xlabel("Time (in h)")
 plt.ylabel("Position of the stem (in cm)")
 plt.savefig(join(mypath, "trajScaledRaw.pdf"))
 
@@ -44,10 +48,12 @@ trajecScaled = trajecScaled - corrections
 
 plt.figure()
 plt.plot(absc, trajecScaled, '+-')
-plt.xlabel("Time (in min)")
+plt.xlabel("Time (in h)")
 plt.ylabel("Position of the stem (in cm)")
 plt.savefig(join(mypath, "trajScaledCorr.pdf"))
 
+data_mean = np.mean(trajecScaled)
+data_sd = np.std(trajecScaled)
 data_norm = waipy.normalize(trajecScaled)
 
 
@@ -66,12 +72,13 @@ pp = wa.fourier_periods
 plt.figure()
 fig, ax = plt.subplots()
 T, S = np.meshgrid(t, scales)
-ax.contourf(T, S, power, 100)
+img = ax.contourf(T, S, power, 100)
 ax.set_yscale('log')
+fig.colorbar(img)
 fig.savefig(join(mypath,"powergraph.pdf"))
 
-indices1 = np.where(pp<300)[0]
-indices2 = np.where(pp > 50)[0]
+indices1 = np.where(pp<300/60.0)[0]
+indices2 = np.where(pp > 50/60.0)[0]
 
 indices1 = indices1.tolist()
 indices2 = indices2.tolist()
@@ -82,7 +89,7 @@ indices = list(indices)
 #print(indices)
 freq = []
 ampl = []
-p0values=[10,100,25]
+p0values=[10,100.0/60,25/60.0] #initial guess fit gaussienne
 
 for i in range(0, len(power[1,:])):
     ydata = power[indices, i]
@@ -91,18 +98,31 @@ for i in range(0, len(power[1,:])):
 
     yfit = fitfunc(p_solus,xdata)
 
+    # plt.figure()
+    # plt.plot(xdata, ydata)
+    # plt.plot(xdata, yfit, 'r')
+    # plt.show()
+
     freq.append(p_solus[1])
     ampl.append(p_solus[0])
 
-amplScaled = ampl #[e * myscale for e in ampl]
+amplScaled = np.array(ampl) #[e * myscale for e in ampl]
+
+amplCM = (amplScaled * data_sd) / fudgeFactor
 
 plt.figure()
 plt.plot(absc, freq, '+')
 x1,x2,y1,y2 = plt.axis()
-plt.axis([x1, x2, 0, 300])
+# plt.axis([x1, x2, 0, 3])
 plt.savefig(join(mypath,"period.pdf"))
 plt.figure()
-plt.plot(absc, amplScaled, '+')
+plt.plot(absc, amplCM, '+')
 x1,x2,y1,y2 = plt.axis()
-plt.axis([x1, x2, -1, 100])
+# plt.axis([x1, x2, -1, 100])
 plt.savefig(join(mypath,"Zamplitude.pdf"))
+
+plt.figure()
+plt.plot(freq, amplCM, "+")
+plt.xlabel("Period")
+plt.ylabel("Amplitude")
+plt.savefig(join(mypath, "Zcorr.pdf"))
